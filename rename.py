@@ -26,7 +26,7 @@ def find_first_dicom_file_in_dir(path):
 
 
 def replace_space_with_underscore(description):
-    return description.replace(' ', '_')
+    return description.replace(" ", "_")
 
 
 def _rename_series(path):
@@ -39,41 +39,52 @@ def _rename_series(path):
                 ds = find_first_dicom_file_in_dir(seriesdir_path)
                 if ds:
                     try:
-                        desc = replace_space_with_underscore(
-                            ds.SeriesDescription)
+                        desc = replace_space_with_underscore(ds.SeriesDescription)
                     except AttributeError:
-                        desc = ''
-                    new_series_path = join(path, patientdir, studydir,
-                                           str(ds.SeriesNumber) + '-' + desc)
-                    print('renaming series from', seriesdir_path, '->',
-                          new_series_path)
+                        desc = ""
+                    new_series_path = join(
+                        path,
+                        patientdir,
+                        studydir,
+                        str(ds.SeriesNumber) + "-" + desc + "-" + str(ds.Modality),
+                    )
+                    print("renaming series from", seriesdir_path, "->", new_series_path)
                     try:
                         os.rename(seriesdir_path, new_series_path)
                     except FileNotFoundError as e:
                         print(e)
-            ds = find_first_dicom_file_in_dir(studydir_path)
             if ds:
-                new_studydir_path = join(
-                    patientdir_path,
-                    str(ds.AccessionNumber)) + '-' + str(ds.Modality)
-                print('renaming study from', studydir_path, '->',
-                      new_studydir_path, '\n')
+                new_studydir_path = join(patientdir_path, str(ds.AccessionNumber))
+                print(
+                    "renaming study from", studydir_path, "->", new_studydir_path, "\n"
+                )
                 os.rename(studydir_path, new_studydir_path)
 
+
+def add_dicom_extension(path):
+    files = [x for x in path.glob("**/*") if x.is_file()]
+    print("Start renaming {} files".format(len(files)))
+    for f in files:
+        _, ext = os.path.splitext(f)
+        # simple guess if it is a dicom file without loading it
+        if ext[-1].isdigit():
+            os.rename(f, str(f) + ".dcm")
+    print("End renaming {} files".format(len(files)))
 
 def run():
     # call example
     # python rename.py --dir /data/example-dir
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir', default='.', help='Parent directory')
+    parser.add_argument("--dir", default=".", help="Parent directory")
     args = parser.parse_args()
     run_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-    if args.dir == Path('.'):
+    if args.dir == Path("."):
         parent_dir = run_path
     else:
         parent_dir = Path(args.dir)
-    print('Running on dir', parent_dir)
+    print("Running on dir", parent_dir)
+    add_dicom_extension(parent_dir)
     _rename_series(parent_dir)
     exit(0)
 
