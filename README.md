@@ -16,3 +16,11 @@ After renaming
       \- AccessionNumber
          \-SeriesNumber-SeriesDescription-ModalityShortCode
 ```
+
+# Installation
+
+Git clone this repo and in the folder run
+```
+pip install -e .
+```
+will install it as a runnable script.

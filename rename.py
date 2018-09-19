@@ -71,18 +71,19 @@ def add_dicom_extension(path):
             os.rename(f, str(f) + ".dcm")
     print("End renaming {} files".format(len(files)))
 
+
 def run():
     # call example
     # python rename.py --dir /data/example-dir
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", default=".", help="Parent directory")
+    parser.add_argument("--dir", help="Starting directory")
     args = parser.parse_args()
-    run_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-    if args.dir == Path("."):
-        parent_dir = run_path
-    else:
-        parent_dir = Path(args.dir)
+    if not args.dir:
+        print("--dir parameter missing, exiting")
+        exit(1)
+
+    parent_dir = Path(args.dir)
     print("Running on dir", parent_dir)
     add_dicom_extension(parent_dir)
     _rename_series(parent_dir)
