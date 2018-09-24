@@ -76,7 +76,10 @@ def run():
     # call example
     # python rename.py --dir /data/example-dir
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", help="Starting directory")
+    parser.add_argument("-d","--dir", help="Starting directory")
+    parser.add_argument(
+        "-rs","--rename-series", help="Rename series number folder with series description", action="store_true"
+    )
     args = parser.parse_args()
 
     if not args.dir:
@@ -86,7 +89,8 @@ def run():
     parent_dir = Path(args.dir)
     print("Running on dir", parent_dir)
     add_dicom_extension(parent_dir)
-    _rename_series(parent_dir)
+    if args.rename_series:
+        _rename_series(parent_dir)
     exit(0)
 
 
